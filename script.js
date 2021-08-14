@@ -1,26 +1,19 @@
 function makeGETRequest(url) {
-    return new Promise((resolve, reject) => {
+    return new Promise((resolve) => {
         var xhr;
         if (window.XMLHttpRequest) {
             xhr = new XMLHttpRequest();
-        }
-
-        else if (window.ActiveXObject) {
+        } else if (window.ActiveXObject) {
             xhr = new ActiveXObject("Microsoft.XMLHTTP");
         }
 
-        xhr.open('GET', url, true);
-
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4) {
-                resolve(xhr.responseText);
+                resolve(JSON.parse(xhr.response));
             }
         }
 
-        xhr.onerror = function () { // если error подаем данные в reject
-            reject(new Error('network request failed'));
-        }
-
+        xhr.open('GET', url, true);
         xhr.send();
     });
 }
@@ -28,70 +21,33 @@ function makeGETRequest(url) {
 const url = 'https://raw.githubusercontent.com/GeekBrainsTutorial/online-store-api/master/responses';
 
 class GoodsItem {
-    constructor(product_name, price) {
-        this.product_name = product_name;
+    constructor({ product_name, price }) {
+        this.title = product_name;
         this.price = price;
     }
 
     render() {
-        return `<div class="goods-item"><h3>${this.product_name}</h3><p>${this.price} руб.</p></div>`;
+        return `<div class="goods-item"><h3>${this.title}</h3><p>${this.price} руб.</p></div>`;
     }
 }
 
 class GoodsList {
-    constructor() {
-        this.goods = [];
+    constructor() { }
+
+    async fetchGoods() {
+        return await fetch(`${url}/catalogData.json`).then(resp => resp.json());
     }
 
-    fetchGoods(cb) {
-        makeGETRequest(`${url}/catalogData.json`, (goods) => {
-            this.goods = JSON.parse(goods);
-            cb();
-            console.log(goods);
-        })
-    }
-
-    render() {
-        let listHtml = '';
-        this.goods.forEach(good => {
-            const goodItem = new GoodsItem(good.product_name, good.price);
-            listHtml += goodItem.render();
-
+    render(goods) {
+        let listHtml = document.querySelector('.goods-list');
+        goods.forEach(good => {
+            const goodItem = new GoodsItem(good);
+            listHtml.insertAdjacentHTML('afterEnd', goodItem.render());
         });
-        document.querySelector('.goods-list').innerHTML = listHtml;
     }
 }
 
-// класс для рендеринга самой страницы корзины
-// class MainBasket {
+const goodsListInstance = new GoodsList();
+goodsListInstance.fetchGoods()
+    .then((data) => goodsListInstance.render(data));
 
-//     render() {
-
-//     }
-
-// }
-
-// класс для списка товаров в корзине
-// class BasketList {
-
-//     render() {
-
-//     }
-
-
-// }
-
-// // класс для отдельного товара в корзине
-// class BasketItem {
-
-//     render() {
-
-//     }
-
-
-// }
-
-const list = new GoodsList();
-list.fetchGoods(() => {
-    list.render();
-});
