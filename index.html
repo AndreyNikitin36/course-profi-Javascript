@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Магазин</title>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <div id="app">
+        <div class="container">
+            <header class="header_block">
+                <div class="header_menu">
+                    <div class="menu_item">
+                        <a href="#" title="Главная">Главная</a>
+                    </div>
+                    <div class="menu_item">
+                        <a href="#" title="Контакты">Контакты</a>
+                    </div>
+                    <div class="menu_item">
+                        <button v-if="isVisibleCart != 0" class="cart-button" type="button">Корзина</button>
+                    </div>
+                    <div class="menu_item">
+                        <input v-model="searchLine" type="text" class="goods-search" />
+                        <button class="search-button" type="button" v-on:click="filterGoods">Искать</button>
+                    </div>
+                </div>
+            </header>
+            <main class="products_wraper">
+                <div class="goods-list">
+                    <div class="goods-item" v-for="good in filteredGoods">
+                        <h3>{{good.product_name}}</h3>
+                        <p>{{good.price}}</p>
+                        <button class="item-button" type="button"
+                            v-on:click="basketAdd(good.product_name)">Купить</button>
+                    </div>
+                </div>
+            </main>
+            <H2>Корзина</H2>
+            <div v-if="isVisibleCart != 0" class="products_wraper">
+                <div class="goods-item" v-for="cart in basket">
+                    <h3>{{cart.product_name}}</h3>
+                    <p>{{cart.price}} руб.</p>
+                    <p>Количество в корзине: {{cart.quantity}}</p>
+                    <p>Общая стоимость: руб.</p>
+                </div>
+
+                <hr class="navbar-divider">
+
+                <a class="navbar-item" href="#">Итого к оплате руб.</a>
+            </div>
+
+            <div v-else class="products_wraper">
+                <a class="navbar-item" href="#">
+                    Корзина пуста
+                </a>
+            </div>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
